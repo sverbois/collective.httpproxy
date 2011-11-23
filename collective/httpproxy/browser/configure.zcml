@@ -1,0 +1,28 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:browser="http://namespaces.zope.org/browser">
+    
+    <browser:page
+        name="httpproxy-controlpanel"
+        for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+        permission="collective.httpproxy.SetupHTTPProxy"
+        class=".controlpanel.HTTPProxyControlPanelView"
+        layer="..interfaces.ILayerSpecific"
+        />
+    
+    <browser:page
+        name="httpproxy_view"
+        for="..interfaces.IHTTPProxy"
+        class=".httpproxyview.HTTPProxyView"
+        template="httpproxyview.pt"
+        permission="zope2.View"
+        layer="..interfaces.ILayerSpecific"
+        />
+        
+    <browser:resource
+        name="httpproxy.gif"
+        image="httpproxy.gif"
+        layer="..interfaces.ILayerSpecific"
+        />
+
+</configure>

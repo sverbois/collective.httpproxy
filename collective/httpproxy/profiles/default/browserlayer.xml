@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<layers>
+    <layer name="collective.httpproxy.layer" interface="collective.httpproxy.interfaces.ILayerSpecific" />
+</layers>

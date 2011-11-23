@@ -1,0 +1,13 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope">
+    
+    <permission
+        id="collective.httpproxy.AddHTTPProxy"
+        title="collective.httpproxy: Add HTTP Proxy"
+    />
+    <permission
+        id="collective.httpproxy.SetupHTTPProxy"
+        title="collective.httpproxy: Setup HTTP Proxy"
+    />
+    
+</configure>

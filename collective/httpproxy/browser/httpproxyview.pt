@@ -1,0 +1,20 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      metal:use-macro="context/main_template/macros/master">
+
+<head>
+<metal:baseslot fill-slot="base">
+    <base tal:attributes="href python:context.absolute_url() + '/'" />
+</metal:baseslot>
+</head>
+
+<body>
+<metal:block fill-slot="main">
+    <div tal:replace="structure view/main_content">
+        Main content
+    </div>
+</metal:block>
+</body>
+
+</html>

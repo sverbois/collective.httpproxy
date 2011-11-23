@@ -1,0 +1,23 @@
+<registry>
+  
+  <records interface="collective.httpproxy.interfaces.IHTTPProxySettings" prefix="collective.httpproxy">
+      <value key="encodings">
+        <element>utf8</element>
+        <element>iso-8859-15</element>
+      </value>
+      <value key="proxyExceptions">
+        <element>httpproxy_view</element>
+        <element>atct_edit</element>
+        <element>content_status_modify</element>
+        <element>content_status_history</element>
+        <element>delete_confirmation</element>
+        <element>manage_interfaces</element>
+        <element>object_copy</element>
+        <element>object_cut</element>
+        <element>object_rename</element>
+        <element>folder_rename_form</element>
+      </value>
+      <value key="socketTimeout">5.0</value>
+  </records>
+
+</registry>

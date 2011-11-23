@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<object
+    name="portal_controlpanel"
+    xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+    i18n:domain="collective.httpproxy">
+
+    <configlet
+        title="HTTP Proxy settings"
+        action_id="collective.httpproxy.settings"
+        appId="collective.httpproxy"
+        category="Products"
+        condition_expr=""
+        url_expr="string:${portal_url}/@@httpproxy-controlpanel"
+        icon_expr="string:${portal_url}/++resource++httpproxy.gif"
+        visible="True"
+        i18n:attributes="title">
+            <permission>collective.httpproxy: Setup HTTP Proxy</permission>
+    </configlet>
+
+</object>
