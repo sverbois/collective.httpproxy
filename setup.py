@@ -7,7 +7,7 @@ version = '0.1dev'
 
 setup(name='collective.httpproxy',
       version=version,
-      description="collective.httpproxy add the archetypes content type 'HTTP Proxy' into Plone",
+      description="collective.httpproxy add the archetype content type 'HTTP Proxy' into Plone",
       long_description=open('README.rst').read() +
         open(os.path.join('docs', 'HISTORY.txt')).read(),
       classifiers=[
@@ -26,7 +26,7 @@ setup(name='collective.httpproxy',
       zip_safe=False,
       install_requires=[
             'setuptools',
-            'plone.app.registry'
+            'plone.app.registry',
             'httplib2',
       ],
       entry_points="""
