@@ -7,7 +7,7 @@ from ZPublisher.BaseRequest import DefaultPublishTraverse
 
 
 class HTTPProxyPublishTraverse(DefaultPublishTraverse):
-    
+
     def publishTraverse(self, request, name):
         registry = getUtility(IRegistry)
         if name in registry['collective.httpproxy.proxyExceptions']:

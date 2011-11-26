@@ -6,7 +6,7 @@ from collective.httpproxy import HTTPProxyMessageFactory as _
 from zope.interface import implements
 from Products.Archetypes import atapi
 from Products.ATContentTypes.content import link
-from Products.ATContentTypes.content import schemata
+
 
 HTTPProxyBaseSchema = link.ATLinkSchema.copy()
 

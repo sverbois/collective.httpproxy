@@ -2,13 +2,13 @@
     xmlns="http://namespaces.zope.org/zope"
     xmlns:five="http://namespaces.zope.org/five"
     xmlns:genericsetup="http://namespaces.zope.org/genericsetup">
-    
+
     <five:registerPackage package="." initialize=".initialize" />
-    
+
     <include file="permissions.zcml" />
-    
+
     <include package=".browser" />
-    
+
     <genericsetup:registerProfile
         name="default"
         title="HTTP Proxy"
@@ -16,13 +16,13 @@
         description="Adds the content type 'HTTP Proxy'."
         provides="Products.GenericSetup.interfaces.EXTENSION"
         />
-    
+
     <adapter
         for=".interfaces.IHTTPProxy zope.publisher.http.IHTTPRequest"
         provides="zope.publisher.interfaces.IPublishTraverse"
         factory=".traverser.HTTPProxyPublishTraverse"
         />
-       
+
     <utility
         provides="zope.schema.interfaces.IVocabularyFactory"
         component=".vocabularies.EncodingsVocabularyFactory"
