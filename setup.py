@@ -28,9 +28,10 @@ setup(name='collective.httpproxy',
             'setuptools',
             'plone.app.registry',
             'httplib2',
+            'Products.DataGridField',
       ],
       extras_require={
-            'test': ['plone.app.testing',]
+            'test': ['plone.app.testing']
       },
       entry_points="""
       # -*- Entry points: -*-

@@ -8,6 +8,7 @@ from plone.registry.interfaces import IRegistry
 from socket import timeout as SocketTimeout
 from zope.component import getUtility
 from zope.publisher.browser import BrowserView
+from collective.httpproxy.interfaces import IHTTPProxySettings
 
 
 class HTTPProxyView(BrowserView):
@@ -30,10 +31,12 @@ class HTTPProxyView(BrowserView):
             return "<p>The application %s is not responding.</p><pre>ERROR %d %s</pre><p>%s<p>" % (self.context.Title(), status, reason, content)
 
     def _get_remote_content(self):
-        registry = getUtility(IRegistry)
+        settings = getUtility(IRegistry).forInterface(IHTTPProxySettings)
         try:
-            h = httplib2.Http(timeout=registry['collective.httpproxy.socketTimeout'])
-            url = self.remote_url + '/' + self.remote_subpath
+            h = httplib2.Http(timeout=settings.socketTimeout)
+            url = self.remote_url
+            if self.remote_subpath:
+                url = url + '/' + self.remote_subpath
             method = self.request.environ['REQUEST_METHOD']
             params = self.request.form
             body = None
@@ -58,9 +61,21 @@ class HTTPProxyView(BrowserView):
             content = str(e)
         return status, reason, content
 
+    def find_tags_to_match(self):
+        tagSelection = self.context.getTagSelection()
+        selected = None
+        for possibleMatch in tagSelection:
+            if self.remote_subpath.startswith(possibleMatch['urlStart']):
+                if selected is None or \
+                   len(possibleMatch['urlStart']) >= len(selected['urlStart']):
+                    selected = possibleMatch
+        if selected is None:
+            return "", ""
+        else:
+            return selected['beginTag'], selected['endTag']
+
     def _extract_main_content(self, content):
-        begin = self.context.getBeginTag()
-        end = self.context.getEndTag()
+        begin, end = self.find_tags_to_match()
         regexp = re.compile(r"(%s)(.*)(%s)" % (begin, end), re.DOTALL)
         result = regexp.search(content)
         if result:

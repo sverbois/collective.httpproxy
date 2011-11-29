@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <registry>
   
-  <records interface="collective.httpproxy.interfaces.IHTTPProxySettings" prefix="collective.httpproxy">
+  <records interface="collective.httpproxy.interfaces.IHTTPProxySettings">
 
       <value key="encodings">
         <element>utf8</element>
