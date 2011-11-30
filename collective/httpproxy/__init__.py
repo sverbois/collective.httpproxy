@@ -6,12 +6,12 @@ HTTPProxyMessageFactory = MessageFactory('collective.httpproxy')
 
 
 def initialize(context):
-    
+
     from collective.httpproxy import config
     from collective.httpproxy import httpproxy
     from Products.Archetypes import atapi
     from Products.CMFCore import utils
-    
+
     content_types, constructors, ftis = atapi.process_types(
         atapi.listTypes(config.PROJECT_NAME),
         config.PROJECT_NAME)

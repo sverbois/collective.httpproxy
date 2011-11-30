@@ -2,15 +2,15 @@
 
 from plone.registry.interfaces import IRegistry
 from zope.component import getMultiAdapter, getUtility
-from zExceptions import NotFound
 from ZPublisher.BaseRequest import DefaultPublishTraverse
+from collective.httpproxy.interfaces import IHTTPProxySettings
 
 
 class HTTPProxyPublishTraverse(DefaultPublishTraverse):
-    
+
     def publishTraverse(self, request, name):
-        registry = getUtility(IRegistry)
-        if name in registry['collective.httpproxy.proxyExceptions']:
+        settings = getUtility(IRegistry).forInterface(IHTTPProxySettings)
+        if name in settings.proxyExceptions:
             return super(HTTPProxyPublishTraverse, self).publishTraverse(request, name)
         else:
             subpath_segments = [name] + request.get('TraversalRequestNameStack')

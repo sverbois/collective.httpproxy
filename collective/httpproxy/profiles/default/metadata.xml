@@ -2,5 +2,7 @@
 <metadata>
   <version>1</version>
   <dependencies>
+    <dependency>profile-plone.app.registry:default</dependency>
+    <dependency>profile-Products.DataGridField:default</dependency>
   </dependencies>
 </metadata>

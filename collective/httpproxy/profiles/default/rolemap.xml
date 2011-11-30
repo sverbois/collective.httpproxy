@@ -1,13 +1,18 @@
 <?xml version="1.0"?>
 <rolemap>
+
   <permissions>
+
     <permission name="collective.httpproxy: Add HTTP Proxy" acquire="False">
       <role name="Manager" />
       <role name="Site Administrator" />
     </permission>
+
     <permission name="collective.httpproxy: Setup HTTP Proxy" acquire="False">
       <role name="Manager" />
       <role name="Site Administrator" />
     </permission>
+
   </permissions>
+
 </rolemap>

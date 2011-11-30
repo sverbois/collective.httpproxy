@@ -9,7 +9,6 @@ from plone.z3cform import layout
 
 class HTTPProxyControlPanelForm(RegistryEditForm):
     schema = IHTTPProxySettings
-    schema_prefix = "collective.httpproxy"
 
 HTTPProxyControlPanelView = layout.wrap_form(HTTPProxyControlPanelForm, ControlPanelFormWrapper)
 HTTPProxyControlPanelView.label = _(u"HTTP Proxy settings")
