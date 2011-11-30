@@ -1,10 +1,12 @@
 import unittest2 as unittest
-from zope.component import getUtility
+from zope.component import getUtility, getMultiAdapter
+from zope.component.interfaces import ComponentLookupError
+from zope.interface import alsoProvides
 from plone.testing.z2 import Browser
 from plone.app.testing import setRoles, TEST_USER_ID
 from plone.registry.interfaces import IRegistry
 
-from collective.httpproxy.interfaces import IHTTPProxySettings
+from collective.httpproxy.interfaces import IHTTPProxySettings, ILayerSpecific
 from collective.httpproxy.testing import HTTP_PROXY_FUNCTIONAL_TESTING, \
                                          HTTP_PROXY_INTEGRATION_TESTING
 from collective.httpproxy.browser.httpproxyview import HTTPProxyView
@@ -32,7 +34,7 @@ class BaseTestCase(unittest.TestCase):
             portal.invokeFactory('HTTPProxy', 'test',
                                  title=u"Test Proxy",
                                  remoteUrl="http://test-url-for-proxy.org",
-                                 tagSelection=[{'urlStart': '',
+                                 tagsSelections=[{'urlStart': '',
                                                 'beginTag': '',
                                                 'endTag': ''},
                                                 {'urlStart': 'search.php',
@@ -60,10 +62,64 @@ class TestSetup(unittest.TestCase):
         self.assertIsNotNone(settings.proxyExceptions)
         self.assertIsNotNone(settings.socketTimeout)
 
+    def test_product_installed(self):
+        portal = self.layer['portal']
+        pq = portal['portal_quickinstaller']
+        self.assertTrue(pq.isProductInstalled('collective.httpproxy'))
+
 
 class TestProxyView(BaseTestCase):
 
     layer = HTTP_PROXY_INTEGRATION_TESTING
+
+    def test_view_available(self):
+        portal = self.layer['portal']
+        request = self.layer['request']
+        with self.assertRaises(ComponentLookupError):
+            getMultiAdapter((portal, request), name=u'httpproxy_view')
+        alsoProvides(request, ILayerSpecific)
+        with self.assertRaises(ComponentLookupError):
+            getMultiAdapter((portal, request), name=u'httpproxy_view')
+        self.assertIsNotNone(getMultiAdapter((portal.test, request), name=u'httpproxy_view'))
+
+    def test_construct_request_params(self):
+        portal = self.layer['portal']
+        request = self.layer['request']
+        request.remote_subpath = 'test.php'
+        alsoProvides(request, ILayerSpecific)
+        view = getMultiAdapter((portal.test, request), name=u'httpproxy_view')
+        url, params = view._construct_request_params()
+        self.assertEqual(url, 'http://test-url-for-proxy.org/test.php')
+        self.assertDictEqual(params, {'method': 'GET',
+                                      'body': None,
+                                      'headers': {'Content-Type': 'text/html; charset=utf-8'}})
+
+        request.form = {'page_id': 1,
+                        'section_id': 'foo'}
+        view = getMultiAdapter((portal.test, request), name=u'httpproxy_view')
+        url, params = view._construct_request_params()
+        self.assertEqual(url, 'http://test-url-for-proxy.org/test.php?page_id=1&section_id=foo')
+        self.assertDictEqual(params, {'method': 'GET',
+                                      'body': None,
+                                      'headers': {'Content-Type': 'text/html; charset=utf-8'}})
+
+        request.form = {}
+        request.environ['REQUEST_METHOD'] = 'POST'
+        view = getMultiAdapter((portal.test, request), name=u'httpproxy_view')
+        url, params = view._construct_request_params()
+        self.assertEqual(url, 'http://test-url-for-proxy.org/test.php')
+        self.assertDictEqual(params, {'method': 'POST',
+                                      'body': None,
+                                      'headers': {'Content-Type': 'text/html; charset=utf-8'}})
+
+        request.form = {'page_id': 1,
+                        'section_id': 'foo'}
+        view = getMultiAdapter((portal.test, request), name=u'httpproxy_view')
+        url, params = view._construct_request_params()
+        self.assertEqual(url, 'http://test-url-for-proxy.org/test.php')
+        self.assertDictEqual(params, {'method': 'POST',
+                                      'body': 'page_id=1&section_id=foo',
+                                      'headers': {'Content-Type': 'application/x-www-form-urlencoded'}})
 
     def test_find_tags_to_match(self):
         portal = self.layer['portal']
@@ -71,25 +127,25 @@ class TestProxyView(BaseTestCase):
 
         request.remote_subpath = ''
         view = HTTPProxyView(portal.test, request)
-        beginTag, endTag = view.find_tags_to_match()
+        beginTag, endTag = view._find_tags_to_match()
         self.assertEqual(beginTag, '')
         self.assertEqual(endTag, '')
 
         request.remote_subpath = 'test.php'
         view = HTTPProxyView(portal.test, request)
-        beginTag, endTag = view.find_tags_to_match()
+        beginTag, endTag = view._find_tags_to_match()
         self.assertEqual(beginTag, '')
         self.assertEqual(endTag, '')
 
         request.remote_subpath = 'search.php?param1=foo&param2=bar'
         view = HTTPProxyView(portal.test, request)
-        beginTag, endTag = view.find_tags_to_match()
+        beginTag, endTag = view._find_tags_to_match()
         self.assertEqual(beginTag, '<p>')
         self.assertEqual(endTag, '</p>')
 
         request.remote_subpath = 'search?param1=foo'
         view = HTTPProxyView(portal.test, request)
-        beginTag, endTag = view.find_tags_to_match()
+        beginTag, endTag = view._find_tags_to_match()
         self.assertEqual(beginTag, '<h1 id="test-title">')
         self.assertEqual(endTag, '</h1>')
 

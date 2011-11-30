@@ -19,6 +19,7 @@
         <element>object_cut</element>
         <element>object_rename</element>
         <element>folder_rename_form</element>
+        <element>kssValidateField</element>
       </value>
 
       <value key="socketTimeout">5.0</value>

@@ -25,7 +25,7 @@ HTTPProxySchema = HTTPProxyBaseSchema + atapi.Schema((
             description=_(u"Encoding of the proxied content"),
             format='radio'),
     ),
-    DataGridField('tagSelection',
+    DataGridField('tagsSelections',
             columns=("urlStart", "beginTag", "endTag"),
             widget = DataGridWidget(
                 label=_(u"Content selection"),
