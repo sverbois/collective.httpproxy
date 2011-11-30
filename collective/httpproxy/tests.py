@@ -32,8 +32,9 @@ class BaseTestCase(unittest.TestCase):
         if not 'test' in portal.objectIds():
             setRoles(portal, TEST_USER_ID, ('Manager', ))
             portal.invokeFactory('HTTPProxy', 'test',
-                                 title=u"Test Proxy",
-                                 remoteUrl="http://test-url-for-proxy.org",
+                                 title=u'Test Proxy',
+                                 remoteUrl='http://test-url-for-proxy.org',
+                                 encoding='utf8',
                                  tagsSelections=[{'urlStart': '',
                                                 'beginTag': '',
                                                 'endTag': ''},
@@ -43,6 +44,11 @@ class BaseTestCase(unittest.TestCase):
                                                 {'urlStart': 'search',
                                                 'beginTag': '<h1 id="test-title">',
                                                 'endTag': '</h1>'}])
+            portal.invokeFactory('HTTPProxy', 'testempty',
+                                 title=u'Test Empty Tags Proxy',
+                                 remoteUrl='http://test-url-for-proxy.org',
+                                 encoding='iso-8859-15',
+                                 tagsSelections=[])
             setRoles(portal, TEST_USER_ID, ('Member', ))
             import transaction; transaction.commit()
         self.origMethod = HTTPProxyView._get_remote_content
@@ -148,6 +154,12 @@ class TestProxyView(BaseTestCase):
         beginTag, endTag = view._find_tags_to_match()
         self.assertEqual(beginTag, '<h1 id="test-title">')
         self.assertEqual(endTag, '</h1>')
+
+        request.remote_subpath = 'test'
+        view = HTTPProxyView(portal.testempty, request)
+        beginTag, endTag = view._find_tags_to_match()
+        self.assertEqual(beginTag, '')
+        self.assertEqual(endTag, '')
 
     def test_no_tag_filtering(self):
         app = self.layer['app']
