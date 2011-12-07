@@ -14,7 +14,6 @@
         name="httpproxy_view"
         for="..interfaces.IHTTPProxy"
         class=".httpproxyview.HTTPProxyView"
-        template="httpproxyview.pt"
         permission="zope2.View"
         layer="..interfaces.ILayerSpecific"
         />

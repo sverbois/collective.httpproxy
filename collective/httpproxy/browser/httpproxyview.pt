@@ -11,7 +11,7 @@
 
 <body>
 <metal:block fill-slot="main">
-    <div tal:replace="structure view/main_content">
+    <div tal:replace="structure options/main_content">
         Main content
     </div>
 </metal:block>

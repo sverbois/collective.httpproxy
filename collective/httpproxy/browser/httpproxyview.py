@@ -5,6 +5,7 @@ import re
 import urllib
 
 from plone.registry.interfaces import IRegistry
+from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from socket import timeout as SocketTimeout
 from zope.component import getUtility
 from zope.publisher.browser import BrowserView
@@ -15,23 +16,33 @@ class HTTPProxyView(BrowserView):
     """
     """
 
-    def __init__(self, context, request):
-        self.context = context
-        self.request = request
-        self.remote_url = context.getRemoteUrl()
-        self.remote_subpath = getattr(request, 'remote_subpath', '')
-        self.host_header = context.absolute_url().split('//')[1]
+    index = ViewPageTemplateFile("httpproxyview.pt")
 
-    def main_content(self):
-        status, reason, content = self._get_remote_content()
-        if status == 200:
-            main_content = self._extract_main_content(content)
-            return self._convert_to_utf8(main_content)
+    def __call__(self):
+        self.remote_subpath = getattr(self.request, 'remote_subpath', '')
+        resp, content = self._get_remote_content()
+        self.proxy_response = resp
+        self.proxy_content = content
+
+        if self.proxy_response.status == 200:
+            content_type = self.proxy_response['content-type']
+            if 'text/html' in content_type:
+                main_proxy_content = self._extract_main_content(self.proxy_content)
+                main_content = self._convert_to_utf8(main_proxy_content)
+                return self.index(main_content=main_content)
+            else:
+                self.request.response.setHeader('Content-Type', content_type)
+                content_disposition = self.proxy_response.get('content-disposition',None)
+                if content_disposition:
+                    self.request.response.setHeader('Content-Disposition', content_disposition)
+                return self.proxy_content
         else:
-            return "<p>The application %s is not responding.</p><pre>ERROR %d %s</pre><p>%s<p>" % (self.context.Title(), status, reason, content)
+            message = u"<p>The application %s is not responding.</p><pre>ERROR %d %s</pre>" %\
+                   (self.context.Title(), self.proxy_response.status, self.proxy_response.reason)
+            return self.index(main_content=message)
 
     def _construct_request_params(self):
-        url = self.remote_url
+        url = self.context.getRemoteUrl()
         if self.remote_subpath:
             url = url + '/' + self.remote_subpath
         params = {}
@@ -39,6 +50,8 @@ class HTTPProxyView(BrowserView):
         form = self.request.form
         body = None
         headers = {'Content-Type': 'text/html; charset=utf-8'}
+        #host_header = self.context.absolute_url().split('//')[1]
+        #headers['Host'] = host_header
         if method == 'GET' and form:
             url += '?' + urllib.urlencode(form)
         elif method == 'POST' and form:
@@ -55,18 +68,18 @@ class HTTPProxyView(BrowserView):
             h = httplib2.Http(timeout=settings.socketTimeout)
             url, params = self._construct_request_params()
             resp, request_content = h.request(url, **params)
-            status = resp.status
-            reason = resp.reason
             content = request_content if request_content else ''
         except SocketTimeout:
-            status = 504
-            reason = 'Gateway Timeout'
+            resp = object()
+            resp.status = 504
+            resp.reason = 'Gateway Timeout'
             content = ''
         except Exception as e:
-            status = 502
-            reason = 'Bad Gateway'
-            content = str(e)
-        return status, reason, content
+            resp = object()
+            resp.status = 502
+            resp.reason = 'Bad Gateway'
+            content = ''
+        return resp, content
 
     def _find_tags_to_match(self):
         tag_selections = self.context.getTagsSelections()
