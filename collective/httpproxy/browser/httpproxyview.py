@@ -17,9 +17,12 @@ class HTTPProxyView(BrowserView):
     """
 
     index = ViewPageTemplateFile("httpproxyview.pt")
+    
+    def __init__(self, context, request):
+        super(HTTPProxyView, self).__init__(context, request)
+        self.remote_subpath = getattr(request, 'remote_subpath', '')
 
     def __call__(self):
-        self.remote_subpath = getattr(self.request, 'remote_subpath', '')
         resp, content = self._get_remote_content()
         self.proxy_response = resp
         self.proxy_content = content
