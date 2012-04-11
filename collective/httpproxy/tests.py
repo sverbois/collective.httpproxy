@@ -9,7 +9,7 @@ from plone.registry.interfaces import IRegistry
 from collective.httpproxy.interfaces import IHTTPProxySettings, ILayerSpecific
 from collective.httpproxy.testing import HTTP_PROXY_FUNCTIONAL_TESTING, \
                                          HTTP_PROXY_INTEGRATION_TESTING
-from collective.httpproxy.browser.httpproxyview import HTTPProxyView
+from collective.httpproxy.browser.httpproxyview import DummyResponse, HTTPProxyView
 
 TEST_HTML_PAGE = u"""
 <html>
@@ -22,7 +22,10 @@ TEST_HTML_PAGE = u"""
 
 
 def _get_remote_content(self):
-    return 200, "", TEST_HTML_PAGE
+    resp = DummyResponse()
+    resp.status = 200
+    resp.get = lambda x: 'text/html' if x == 'content-type' else None
+    return resp, TEST_HTML_PAGE
 
 
 class BaseTestCase(unittest.TestCase):

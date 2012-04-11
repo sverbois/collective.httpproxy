@@ -12,6 +12,11 @@ from zope.publisher.browser import BrowserView
 from collective.httpproxy.interfaces import IHTTPProxySettings
 
 
+class DummyResponse(object):
+    """
+    """
+
+
 class HTTPProxyView(BrowserView):
     """
     """
@@ -26,9 +31,9 @@ class HTTPProxyView(BrowserView):
         resp, content = self._get_remote_content()
         self.proxy_response = resp
         self.proxy_content = content
-
+        
         if self.proxy_response.status == 200:
-            content_type = self.proxy_response['content-type']
+            content_type = self.proxy_response.get('content-type')
             if 'text/html' in content_type:
                 main_proxy_content = self._extract_main_content(self.proxy_content)
                 main_content = self._convert_to_utf8(main_proxy_content)
@@ -73,12 +78,12 @@ class HTTPProxyView(BrowserView):
             resp, request_content = h.request(url, **params)
             content = request_content if request_content else ''
         except SocketTimeout:
-            resp = object()
+            resp = DummyResponse()
             resp.status = 504
             resp.reason = 'Gateway Timeout'
             content = ''
         except Exception as e:
-            resp = object()
+            resp = DummyResponse()
             resp.status = 502
             resp.reason = 'Bad Gateway'
             content = ''
